@@ -6,7 +6,7 @@ import math
 
 Tic-Tac-Toe: A classic game where players take turns marking spaces in a 3x3 grid to get three in a row.
 
-Snake Game: Control a snake as it moves around the screen, eating food to grow longer while avoiding collisions with itself and the walls.
+--- Snake Game: Control a snake as it moves around the screen, eating food to grow longer while avoiding collisions with itself and the walls.
 
 Pong: A simple two-player game where each player controls a paddle to hit a ball back and forth, trying to score points against the opponent.
 
@@ -72,11 +72,15 @@ list_apples = []
 list_enemies = []
 
 pressed_pause = 0
+end_game = 0
 
 is_running = True
 is_playing = True
 p1_alive = True
 p2_alive = True
+
+def win_player_1st_param(player1 : pygame.Rect, player2 : pygame.Rect) -> bool:
+    return player1.width == 80 or player2.width == 0
 
 while is_running:
     for event in pygame.event.get():
@@ -85,21 +89,12 @@ while is_running:
     
     screen.fill("black")
 
-    font = pygame.font.SysFont("Helvetica Rounded", 36)
+    font = pygame.font.SysFont("helveticaroundedbold", 25)
     txtscore_p1 = font.render(f"Player 1 score : {score_p1}", True, "white")
     txtscore_p2 = font.render(f"Player 2 score : {score_p2}", True, "white")
-    txtapples = font.render(f"Apples on the screen : {len(list_apples)}", True, "white")
-    txtsize = font.render(f"Player 1 size : {round(player_1.width/2)}", True, "white")
-    txtsize2 = font.render(f"Player 2 size : {round(player_2.width/2)}", True, "white")
-    txttime_p1 = font.render(f"Player 1 timer alive : {math.floor(time_p1/60)}", True, "white")
-    txttime_p2 = font.render(f"Player 2 time alive : {math.floor(time_p2/60)}", True, "white")
-    screen.blit(txtscore_p1,(10, 10))
-    screen.blit(txtscore_p2,(1050, 10))
-    screen.blit(txtapples,(500, 10))
-    screen.blit(txtsize,(10, 35))
-    screen.blit(txtsize2,(1050, 35))
-    screen.blit(txttime_p1,(10, 60))
-    screen.blit(txttime_p2,(1000, 60))
+    if end_game == 0:
+        screen.blit(txtscore_p1,(10, 10))
+        screen.blit(txtscore_p2,(10, 35))
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_ESCAPE]:
@@ -111,79 +106,48 @@ while is_running:
         pressed_pause -= 1
 
     if is_playing:
-        
-        if not p1_alive and not p2_alive:
-            is_running = False
 
         if p1_alive :
             time_p1 += 1
-            pygame.draw.rect(screen, "white", player_1, player_1.width)
+            pygame.draw.rect(screen, "yellow", player_1, player_1.width)
         if p2_alive :
             time_p2 += 1
-            pygame.draw.rect(screen, "blue", player_2, player_2.width)
+            pygame.draw.rect(screen, "red", player_2, player_2.width)
 
         for apple in list_apples:
-            if player_1.width + 5 >= apple.width or player_2.width + 5 >= apple.width:
-                pygame.draw.rect(screen, "red", apple, apple.width)
+            if player_1.width + 5 >= apple.width and player_2.width + 5 >= apple.width:
+                pygame.draw.rect(screen, pygame.Color(210, 110, 0), apple, apple.width)
+            elif player_1.width + 5 >= apple.width and not player_2.width + 5 >= apple.width:
+                pygame.draw.rect(screen, pygame.Color(180, 180, 0), apple, apple.width)
+            elif not player_1.width + 5 >= apple.width and player_2.width + 5 >= apple.width:
+                pygame.draw.rect(screen, pygame.Color(143, 0, 0), apple, apple.width)
             else:
                 pygame.draw.rect(screen, "gray", apple, apple.width)
         for enemy in list_enemies:
             pygame.draw.rect(screen, "green", enemy, enemy.width)
 
+        speed_p1 = (1 + (1 - player_1.width/80))*2.5
+        speed_p2 = (1 + (1 - player_2.width/80))*2.5
+
         if p1_alive:
             if keys[pygame.K_z]:
-                player_1.top -= 1 + (1-round(player_1.width/40))
+                player_1.top -= speed_p1
             if keys[pygame.K_s]:
-                if player_1.width < 20:
-                    player_1.top += 10
-                elif player_1.width > 60:
-                    player_1.top += 3
-                else:
-                    player_1.top += 5
+                player_1.top += speed_p1
             if keys[pygame.K_q]:
-                if player_1.width < 20:
-                    player_1.left -= 10
-                elif player_1.width > 60:
-                    player_1.left -= 3
-                else:
-                    player_1.left -= 5
+                 player_1.left -= speed_p1
             if keys[pygame.K_d]:
-                if player_1.width < 20:
-                    player_1.left += 10
-                elif player_1.width > 60:
-                    player_1.left += 3
-                else:
-                    player_1.left += 5
+                player_1.left += speed_p1
 
         if p2_alive:
             if keys[pygame.K_UP]:
-                if player_2.width < 20:
-                    player_2.top -= 10
-                elif player_2.width > 60:
-                    player_2.top -= 3
-                else:
-                    player_2.top -= 5
+                player_2.top -= speed_p2
             if keys[pygame.K_DOWN]:
-                if player_2.width < 20:
-                    player_2.top += 10
-                elif player_2.width > 60:
-                    player_2.top += 3
-                else:
-                    player_2.top += 5
+                player_2.top += speed_p2
             if keys[pygame.K_LEFT]:
-                if player_2.width < 20:
-                    player_2.left -= 10
-                elif player_2.width > 60:
-                    player_2.left -= 3
-                else:
-                    player_2.left -= 5
+                player_2.left -= speed_p2
             if keys[pygame.K_RIGHT]:
-                if player_2.width < 20:
-                    player_2.left += 10
-                elif player_2.width > 60:
-                    player_2.left += 3
-                else:
-                    player_2.left += 5
+                player_2.left += speed_p2
 
         time_enemy += 1
         time_apple += 1
@@ -204,9 +168,15 @@ while is_running:
 
             if player_1.width < 10:
                 p1_alive = False
+                player_1.width = 0
+                player_1.height = 0
+                score_p1 = 0
 
             if player_2.width < 10:
                 p2_alive = False
+                player_2.width = 0
+                player_2.height = 0
+                score_p2 = 0
 
             for apple in list_apples:
                 apple.width += 2
@@ -214,12 +184,11 @@ while is_running:
                 apple.left -= 1
                 apple.top -= 1
             
-            for _ in range(2):
-                apple = pygame.Rect(random.randint(100, screen.get_width() - 100), random.randint(100, screen.get_height() - 100), 10, 10)
+            if len(list_apples) < 20:
+                for _ in range(2):
+                    apple = pygame.Rect(random.randint(100, screen.get_width() - 100), random.randint(100, screen.get_height() - 100), 10, 10)
 
-                pygame.draw.rect(screen, "red", apple, apple.width)
-
-                list_apples.append(apple)
+                    list_apples.append(apple)
 
             time_apple = 0
 
@@ -235,8 +204,6 @@ while is_running:
                 
                 enemy = pygame.Rect(random.randint(100, screen.get_width() - 100), random.randint(100, screen.get_height() - 100), 10, 10)
 
-                pygame.draw.rect(screen, "green", enemy, enemy.width)
-
                 list_enemies.append(enemy)
 
             time_enemy = 0
@@ -244,30 +211,41 @@ while is_running:
         for enemy in list_enemies:
             if pygame.Rect.colliderect(player_1, enemy):
                 p1_alive = False
+                player_1.width = 0
+                player_1.height = 0
+                score_p1 = 0
             if pygame.Rect.colliderect(player_2, enemy):
                 p2_alive = False
+                player_2.width = 0
+                player_2.height = 0
+                score_p2 = 0
 
         for apple in list_apples:
             if pygame.Rect.colliderect(player_1, apple):
                 if player_1.width + 5 >= apple.width:
-                    apple.width = 0
-                    apple.height = 0
-                    list_apples.remove(apple)
                     score_p1 += 1
                     player_1.width += 2
                     player_1.height += 2
                     player_1.left -= 1
                     player_1.top -= 1
+                else:
+                    score_p1 -= 2
+                apple.width = 0
+                apple.height = 0
+                list_apples.remove(apple)
+
             if pygame.Rect.colliderect(player_2, apple):
                 if player_2.width + 5 >= apple.width:
-                    apple.width = 0
-                    apple.height = 0
-                    list_apples.remove(apple)
                     score_p2 += 1
                     player_2.width += 2
                     player_2.height += 2
                     player_2.left -= 1
                     player_2.top -= 1
+                else:
+                    score_p2 -= 2
+                apple.width = 0
+                apple.height = 0
+                list_apples.remove(apple)
             for enemy in list_enemies:
                 if pygame.Rect.colliderect(apple, enemy):
                     apple.width = 0
@@ -277,21 +255,43 @@ while is_running:
                     score_p2 -= 1
         
         if pygame.Rect.colliderect(player_1, player_2):
-            is_running = False
+            player_1.width = 0
+            player_1.height = 0
+            player_2.width = 0
+            player_2.height = 0
         
         for border in list_border:
             if p1_alive:
                 if pygame.Rect.colliderect(player_1, border):
                     p1_alive = False
+                    player_1.width = 0
+                    player_1.height = 0
+                    score_p1 = 0
             if p2_alive:
                 if pygame.Rect.colliderect(player_2, border):
                     p2_alive = False
+                    player_2.width = 0
+                    player_2.height = 0
+                    score_p2 = 0
         
-        if player_1.width == 80 or player_2.width == 80:
-            is_running = False
-    
+        if win_player_1st_param(player_1, player_2) or win_player_1st_param(player_2, player_1):
+            list_apples = []
+            list_enemies = []
+            font2 = pygame.font.SysFont("helveticaroundedbold", 40)
+            if player_1.width == player_2.width:
+                txt_win = font2.render(f"Nobody won, both player killed themselves", True, "white")
+            elif win_player_1st_param(player_1, player_2):
+                p1_alive = False
+                txt_win = font2.render(f"Player 1 won with a score of {score_p1} after {math.floor(time_p1/60)} second(s)", True, "white")
+            elif win_player_1st_param(player_2, player_1):
+                p2_alive = False
+                txt_win = font2.render(f"Player 2 won with a score of {score_p2} after {math.floor(time_p2/60)} second(s)", True, "white")
+            screen.blit(txt_win,(200, 325))
+            end_game += 1/60
+            if end_game > 5:
+                is_running = False
     else:
-        screen.blit(pygame.font.SysFont("Helvetica Rounded", 120).render("Paused", True, "white"),(500, 325))
+        screen.blit(pygame.font.SysFont("helveticaroundedbold", 80).render("Paused", True, "white"),(500, 325))
 
     pygame.display.flip()
 
