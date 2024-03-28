@@ -44,6 +44,10 @@ Trivia Quiz: Create a quiz game with multiple-choice questions on various topics
 
 Racing Game: Develop a simple racing game where players compete against each other or AI opponents on a track.
 
+Added by me :
+
+Guess The Number: There's a random number, you don't know what it is, and you need to guess it with only knowinig higher or lower. 5 - 10 - 15 rounds, the number gets better and better every time.
+
 """
 
 pygame.init()
