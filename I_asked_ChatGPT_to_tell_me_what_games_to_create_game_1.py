@@ -259,10 +259,10 @@ while is_running:
                     score_p2 -= 1
         
         if pygame.Rect.colliderect(player_1, player_2):
-            player_1.width = 0
-            player_1.height = 0
-            player_2.width = 0
-            player_2.height = 0
+            player_1.width -= 1
+            player_1.height -= 1
+            player_2.width -= 1
+            player_2.height -= 1
         
         for border in list_border:
             if p1_alive:
